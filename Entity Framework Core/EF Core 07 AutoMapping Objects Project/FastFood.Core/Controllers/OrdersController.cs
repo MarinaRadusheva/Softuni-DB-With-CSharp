@@ -39,7 +39,7 @@
                 return RedirectToAction("Error", "Home");
             }
             var order = mapper.Map<Order>(model);
-            //order.OrderItems.Add(new OrderItem { ItemId = model.ItemId });
+            order.OrderItems.Add(new OrderItem { ItemId = model.ItemId, Quantity = model.Quantity});
             context.Orders.Add(order);
             context.SaveChanges();
             return this.RedirectToAction("All", "Orders");
