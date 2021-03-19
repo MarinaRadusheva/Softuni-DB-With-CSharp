@@ -29,13 +29,46 @@ namespace ProductShop
             //Console.WriteLine(ImportCategoryProducts(context, jsonCatProd));
             //Console.WriteLine(GetProductsInRange(context));
             //Console.WriteLine(GetSoldProducts(context));
-            Console.WriteLine(GetCategoriesByProductsCount(context));
+            //Console.WriteLine(GetCategoriesByProductsCount(context));
+            Console.WriteLine(GetUsersWithProducts(context));
         }
 
         private static void InitializeMapper()
         {
             var config = new MapperConfiguration(x => x.AddProfile<ProductShopProfile>());
             mapper = config.CreateMapper();
+        }
+        public static string GetUsersWithProducts(ProductShopContext context)
+        {
+            //users who have at least 1 sold product with a buyer
+            var users = context.Users
+                .Include(x=>x.ProductsSold)
+                .ToList()
+                .Where(x => x.ProductsSold.Any(p => p.Buyer != null))
+                .Select(x => new
+                {
+                    firstName = x.FirstName,
+                    lastName = x.LastName,
+                    age = x.Age,
+                    soldProducts = new
+                    {
+                        count = x.ProductsSold.Where(p=>p.Buyer!=null).Count(),
+                        products = x.ProductsSold.Where(b=>b.Buyer!=null)
+                            .Select(p => new SoldProductDto
+                            {
+                                Name = p.Name,
+                                Price = p.Price
+                            }).ToList()
+                    }
+                })
+                .OrderByDescending(x=>x.soldProducts.count)
+                .ToList();
+            var usersFInalized = new  { usersCount = users.Count, users = users };
+            string JsonOutput = JsonConvert.SerializeObject(usersFInalized, Formatting.Indented, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+            return JsonOutput;
         }
         public static string GetCategoriesByProductsCount(ProductShopContext context)
         {
