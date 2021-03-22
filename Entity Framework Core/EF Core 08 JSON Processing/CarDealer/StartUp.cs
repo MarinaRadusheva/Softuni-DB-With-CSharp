@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using CarDealer.Data;
 using CarDealer.DTO;
 using CarDealer.Models;
@@ -32,36 +33,40 @@ namespace CarDealer
             //Console.WriteLine(GetCarsFromMakeToyota(dbContext));
             //Console.WriteLine(GetLocalSuppliers(dbContext));
             //Console.WriteLine(GetCarsWithTheirListOfParts(dbContext));
-            Console.WriteLine(GetTotalSalesByCustomer(dbContext));
+            //Console.WriteLine(GetTotalSalesByCustomer(dbContext));
+            Console.WriteLine(GetSalesWithAppliedDiscount(dbContext));
+        }
+        public static string GetSalesWithAppliedDiscount(CarDealerContext context)
+        {
+            var sales = context.Sales
+                .Take(10)
+                .Select(x => new SalesWithOrWithoutDiscountDto
+                {
+                    Car = new CarDto
+                    {
+                        Make = x.Car.Make,
+                        Model = x.Car.Model,
+                        TravelledDistance = x.Car.TravelledDistance,
+                    },
+                    Name = x.Customer.Name,
+                    Discount = x.Discount.ToString("f2"),
+                    Price = x.Car.Parts.Sum(x => x.Part.Price).ToString("f2"),
+                    PriceWithDiscount = (x.Car.Parts.Sum(x => x.Part.Price) * (1 - (x.Discount / 100))).ToString("f2"),
+                })                
+                .ToList();
+            string output = JsonConvert.SerializeObject(sales, Formatting.Indented);
+            return output;
         }
         public static string GetTotalSalesByCustomer(CarDealerContext context)
         {
-            var customers = context.Customers.Include(x=>x.Cars).ThenInclude(x=>x.Car).ThenInclude(x=>x.Parts).ThenInclude(x=>x.Part).Where(x => x.Cars.Count() > 0).ToList()
-                .Select(x => new
-                {
-                    Name = x.Name,
-                    CarsCount = x.Cars.Count(),
-                    Parts = x.Cars.Select(c => c.Car.Parts.Select(p => p.Part.Price)),
-                })
+            InitializeMapper();
+            var customers = context.Customers
+                .Where(x => x.Cars.Count() > 0)
+                .ProjectTo<CustomerWithCarDto>()
+                .OrderByDescending(x => x.SpentMoney)
+                .ThenByDescending(x => x.BoughtCars)
                 .ToList();
-            var customersWithCars = customers
-                .Select(x => new CustomerWithCarDto
-                    {
-                        FullName = x.Name,
-                        BoughtCars = x.CarsCount,
-                        SpentMoney = x.Parts.Sum(p => p.Sum(d => d)),
-                    })
-                .OrderByDescending(x=>x.SpentMoney)
-                .ThenByDescending(x=>x.BoughtCars)
-                .ToList();
-                //.Select(x => new CustomerWithCarDto
-                //{
-                //    FullName = x.Name,
-                //    BoughtCars = x.Cars.Count(),
-                //    SpentMoney = ,
-                //})
-                //.ToList();
-            string output = JsonConvert.SerializeObject(customersWithCars, Formatting.Indented);
+            string output = JsonConvert.SerializeObject(customers, Formatting.Indented);
             return output;
         }
 
@@ -71,7 +76,7 @@ namespace CarDealer
             var carsWithParts = context.Cars
                 .Select(x => new
                  {
-                     car = new CarsWithPartsDto
+                     car = new CarDto
                      {
                          Make = x.Make,
                          Model = x.Model,
