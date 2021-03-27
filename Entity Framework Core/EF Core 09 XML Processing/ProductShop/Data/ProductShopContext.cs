@@ -26,6 +26,7 @@
             {
                 optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=ProductShop;Integrated Security=True");
             }
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

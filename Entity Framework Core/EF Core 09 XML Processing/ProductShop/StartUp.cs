@@ -33,7 +33,103 @@ namespace ProductShop
             //System.Console.WriteLine(ImportProducts(context, productXml));
             //System.Console.WriteLine(ImportCategories(context, categoryXml));
             //System.Console.WriteLine(ImportCategoryProducts(context, categoryProductXml));
-            Console.WriteLine(GetProductsInRange(context));
+            //Console.WriteLine(GetProductsInRange(context));
+            //Console.WriteLine(GetSoldProducts(context));
+            //Console.WriteLine(GetCategoriesByProductsCount(context));
+            Console.WriteLine(GetUsersWithProducts(context));
+        }
+        public static string GetUsersWithProducts(ProductShopContext context)
+        {
+            //users with at least 1 sold product. Order by number of sold products (hi to lo). Select first and last name, age, count products and products - name and price sorted by price (descending). Take 10.
+            var user = new UsersOutputDto()
+            {
+                Count = context.Users.Count(x=>x.ProductsSold.Any()),
+                Users = context.Users.ToArray()
+                .Where(x => x.ProductsSold.Count > 0)
+                .OrderByDescending(x => x.ProductsSold.Count)
+                .Take(10)
+                .Select(x => new UserWithAgeAndSoldProductsDto()
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Age = x.Age,
+                    SoldProducts = new SoldProductsDto()
+                    {
+                        Count = x.ProductsSold.Count,
+                        Products = x.ProductsSold.ToArray()
+                        .Select(p => new ProductNamePriceDto()
+                        {
+                            Name = p.Name,
+                            Price = p.Price,
+                        }).OrderByDescending(s => s.Price)
+                        .ToArray(),
+                    },
+
+                })
+                
+                .ToArray()
+            };
+            StringBuilder sb = new StringBuilder();
+            StringWriter writer = new StringWriter(sb);
+            var serializer = new XmlSerializer(typeof(UsersOutputDto), new XmlRootAttribute("Users"));
+            var namespaces = new XmlSerializerNamespaces();
+            namespaces.Add("", "");
+            serializer.Serialize(writer, user, namespaces);
+            return sb.ToString().TrimEnd();
+        }
+        public static string GetCategoriesByProductsCount(ProductShopContext context)
+        {
+            //categories-select its name, the number of products, the average price of products and total revenue.Order by number of products (descending) then by total revenue.
+            var categories = context.Categories
+                .Select(x => new CategoriesByProductsDto
+                {
+                    Name = x.Name,
+                    ProductsCount = x.CategoryProducts.Count(),
+                    AveragePrice = x.CategoryProducts.Average(p => p.Product.Price).ToString(),
+                    Revenue = x.CategoryProducts.Sum(p => p.Product.Price),
+                })
+                .OrderByDescending(x => x.ProductsCount)
+                .ThenBy(x => x.Revenue)
+                .ToList();
+            var serializer = new XmlSerializer(typeof(List<CategoriesByProductsDto>), new XmlRootAttribute("Categories"));
+            StringBuilder sb = new StringBuilder();
+            StringWriter writer = new StringWriter(sb);
+            var namespaces = new XmlSerializerNamespaces();
+            namespaces.Add("", "");
+            serializer.Serialize(writer, categories, namespaces);
+            return sb.ToString().TrimEnd();
+        }
+        public static string GetSoldProducts(ProductShopContext context)
+        {
+            //users who have at least 1 sold item; Order by last name, then by first name. Take 5;
+            var users = context.Users
+                .Where(x => x.ProductsSold.Count() > 0)
+                .Select(x => new UserWithSoldProductDto
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Products = x.ProductsSold
+                        .Select(p => new ProductNamePriceDto
+                        {
+                            Name = p.Name,
+                            Price = p.Price,
+                        })
+                    .ToArray(),
+                })
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .Take(5)
+                .ToList();
+            StringBuilder sb = new StringBuilder();
+            var serializer = new XmlSerializer(typeof(List<UserWithSoldProductDto>), new XmlRootAttribute("Users"));
+            var namespaces = new XmlSerializerNamespaces();
+            namespaces.Add("", "");
+            StringWriter writer = new StringWriter(sb);
+            using (writer)
+            {
+                serializer.Serialize(writer, users,namespaces);
+            }
+            return sb.ToString().TrimEnd();
         }
         public static string GetProductsInRange(ProductShopContext context)
         {           

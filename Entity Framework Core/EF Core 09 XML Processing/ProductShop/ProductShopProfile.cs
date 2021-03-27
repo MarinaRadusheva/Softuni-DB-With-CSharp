@@ -13,7 +13,7 @@ namespace ProductShop
             CreateMap<ProductInputDto, Product>();
             CreateMap<CategoryInputDto, Category>();
             CreateMap<CategoryProductInputDto, CategoryProduct>();
-            CreateMap<Product, ProductsPriceDto>().ForMember(x => x.Price, p => p.MapFrom(s => s.Price.ToString("f2"))).ForMember(x => x.BuyerName, b => b.MapFrom(n => n.Buyer.FirstName + " " + n.Buyer.LastName));
+            CreateMap<Product, ProductsPriceDto>().ForMember(x => x.Price, p => p.MapFrom(s => s.Price)).ForMember(x => x.BuyerName, b => b.MapFrom(n => n.Buyer.FirstName + " " + n.Buyer.LastName));
         }
     }
 }
