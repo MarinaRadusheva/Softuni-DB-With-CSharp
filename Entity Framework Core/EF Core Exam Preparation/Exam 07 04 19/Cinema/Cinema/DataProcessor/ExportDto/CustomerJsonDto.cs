@@ -7,7 +7,5 @@ namespace Cinema.DataProcessor.ExportDto
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Balance { get; set; }
-        [JsonIgnore]
-        public decimal  BalanceDec { get; set; }
     }
 }

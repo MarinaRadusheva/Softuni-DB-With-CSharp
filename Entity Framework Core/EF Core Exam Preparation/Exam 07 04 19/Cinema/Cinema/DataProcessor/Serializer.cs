@@ -28,9 +28,8 @@
                         FirstName = s.FirstName,
                         LastName = s.LastName,
                         Balance = s.Balance.ToString("f2"),
-                        BalanceDec = s.Balance,
                     }))
-                    .OrderByDescending(d => d.BalanceDec)
+                    .OrderByDescending(d => d.Balance)
                     .ThenBy(d => d.FirstName)
                     .ThenBy(d => d.LastName)
                     .ToList()
