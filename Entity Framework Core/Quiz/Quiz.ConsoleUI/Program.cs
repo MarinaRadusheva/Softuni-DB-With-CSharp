@@ -17,13 +17,28 @@ namespace Quiz.ConsoleUI
             ConfigureServices(serviceCollection);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            //var quizService = serviceProvider.GetService<IQuizService>();
+            var quizService = serviceProvider.GetService<IQuizService>();
             //quizService.Add("C# DB");
             //var questionService = serviceProvider.GetService<IQuestionService>();
             //questionService.Add("What if Entity Framework Core?", 1);
-            var answerService = serviceProvider.GetService<IAnswerService>();
-            answerService.Add("It is ORM", 5, true, 1);
-            answerService.Add("It is micro ORM", 0, false, 1);
+            //var answerService = serviceProvider.GetService<IAnswerService>();
+            //answerService.Add("It is ORM", 5, true, 1);
+            //answerService.Add("It is micro ORM", 0, false, 1);
+            //var userAnswerService = serviceProvider.GetService<IUserAnswerService>();
+            //userAnswerService.AddUserAnswer("595476fc-ba98-4963-ac76-681951d8611c", 1, 1, 1);
+            //var userResult = userAnswerService.UserResult("595476fc-ba98-4963-ac76-681951d8611c", 1);
+            //Console.WriteLine(userResult);
+            //var quiz = quizService.GetQuizById(1);
+            //Console.WriteLine(quiz.Title);
+            //foreach (var item in quiz.QUestions)
+            //{
+            //    Console.WriteLine(item.Title);
+            //    foreach (var answer in item.Answers)
+            //    {
+            //        Console.WriteLine(answer.Title);
+            //    }
+            //}
+
         }
         private static void ConfigureServices(IServiceCollection services)
         {
@@ -35,6 +50,7 @@ namespace Quiz.ConsoleUI
             services.AddTransient<IQuizService, QuizService>();
             services.AddTransient<IQuestionService, QuestionService>();
             services.AddTransient<IAnswerService, AnswerService>();
+            services.AddTransient<IUserAnswerService, UserAnswerService>();
         }
     }
 }
