@@ -16,13 +16,12 @@ namespace Quiz.Services
         {
             this.applicationDbContext = applicationDbContext;
         }
-        public void AddUserAnswer(string userId, int quizId, int questionId, int answerId)
+        public void AddUserAnswer(string userId, int questionId, int answerId)
         {
             var userAnswer = new UserAnswer
             {
                 IdentityUserId = userId,
-                QuizId = quizId,
-                QuestionId = questionId,
+                QuestionId=questionId,
                 AnswerId = answerId
             };
             this.applicationDbContext.UsersAnswers.Add(userAnswer);
@@ -36,9 +35,7 @@ namespace Quiz.Services
                 var userAnswer = new UserAnswer
                 {
                     IdentityUserId = quizInputModel.UserId,
-                    QuizId = quizInputModel.QuizId,
                     AnswerId=item.AnswerId,
-                    QuestionId=item.QuestionId
                 };
                 userAnswers.Add(userAnswer);
             }
@@ -47,14 +44,17 @@ namespace Quiz.Services
         }
         public int UserResult(string userId, int quizId)
         {
-            var quiz = this.applicationDbContext.Quizes.Include(x=>x.Questions).ThenInclude(x=>x.Answers).FirstOrDefault(x => x.Id == quizId);
-            var userAnswers = this.applicationDbContext.UsersAnswers.Where(x => x.IdentityUserId == userId && x.QuizId == quizId).ToList();
-            var totalPoints = 0;
-            foreach (var userAnswer in userAnswers)
-            {
-                totalPoints += quiz.Questions.FirstOrDefault(x => x.Id == userAnswer.QuestionId).Answers.FirstOrDefault(x => x.Id == userAnswer.AnswerId).Points;
-            }
+            var totalPoints = this.applicationDbContext.UsersAnswers
+                .Where(x => x.IdentityUserId == userId && x.Question.QuizId == quizId).Sum(x => x.Answer.Points);
             return totalPoints;
+            //var quiz = this.applicationDbContext.Quizes.Include(x=>x.Questions).ThenInclude(x=>x.Answers).FirstOrDefault(x => x.Id == quizId);
+            //var userAnswers = this.applicationDbContext.UsersAnswers.Where(x => x.IdentityUserId == userId && x.QuizId == quizId).ToList();
+            //var totalPoints = 0;
+            //foreach (var userAnswer in userAnswers)
+            //{
+            //    totalPoints += quiz.Questions.FirstOrDefault(x => x.Id == userAnswer.QuestionId).Answers.FirstOrDefault(x => x.Id == userAnswer.AnswerId).Points;
+            //}
+            //return totalPoints;
         }
     }
 }

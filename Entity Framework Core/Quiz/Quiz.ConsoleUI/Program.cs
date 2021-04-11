@@ -2,9 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Quiz.Data;
 using Quiz.Services;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Quiz.ConsoleUI
@@ -17,7 +19,21 @@ namespace Quiz.ConsoleUI
             ConfigureServices(serviceCollection);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
+            var json = File.ReadAllText("EF-Core-Quiz.json");
+            var questions = JsonConvert.DeserializeObject<IEnumerable<JsonQuestions>>(json);
             var quizService = serviceProvider.GetService<IQuizService>();
+            var questionService = serviceProvider.GetService<IQuestionService>();
+            var answerService = serviceProvider.GetService<IAnswerService>();
+            var quizId = quizService.Add("EF Core");
+            foreach (var question in questions)
+            {
+                var questionId = questionService.Add(question.Question, quizId);
+                foreach (var answer in question.Answers)
+                {
+                    answerService.Add(answer.Answer, answer.Correct ? 1 : 0, answer.Correct, questionId);
+                }
+            }
+            //var quizService = serviceProvider.GetService<IQuizService>();
             //quizService.Add("C# DB");
             //var questionService = serviceProvider.GetService<IQuestionService>();
             //questionService.Add("What if Entity Framework Core?", 1);
