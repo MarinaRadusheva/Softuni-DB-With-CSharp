@@ -16,16 +16,13 @@ namespace Quiz.Services
         {
             this.applicationDbContext = applicationDbContext;
         }
-        public void AddUserAnswer(string userId, int questionId, int answerId)
+        public void AddUserAnswer(string userName, int questionId, int answerId)
         {
-            var userAnswer = new UserAnswer
-            {
-                IdentityUserId = userId,
-                QuestionId=questionId,
-                AnswerId = answerId
-            };
-            this.applicationDbContext.UsersAnswers.Add(userAnswer);
+            var userId = this.applicationDbContext.Users.Where(x => x.UserName == userName).Select(x => x.Id).FirstOrDefault();
+            var userAnswer = this.applicationDbContext.UsersAnswers.FirstOrDefault(x => x.IdentityUserId == userId && x.QuestionId == questionId);
+            userAnswer.AnswerId = answerId;
             this.applicationDbContext.SaveChanges();
+            
         }
         public void BulkAddUserAnswer(QuizInputModel quizInputModel)
         {
@@ -42,8 +39,9 @@ namespace Quiz.Services
             this.applicationDbContext.UsersAnswers.AddRange(userAnswers);
             this.applicationDbContext.SaveChanges();
         }
-        public int UserResult(string userId, int quizId)
+        public int UserResult(string userName, int quizId)
         {
+            var userId = this.applicationDbContext.Users.Where(x => x.UserName == userName).Select(x => x.Id).FirstOrDefault();
             var totalPoints = this.applicationDbContext.UsersAnswers
                 .Where(x => x.IdentityUserId == userId && x.Question.QuizId == quizId).Sum(x => x.Answer.Points);
             return totalPoints;
