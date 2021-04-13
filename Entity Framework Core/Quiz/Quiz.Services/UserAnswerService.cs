@@ -45,14 +45,7 @@ namespace Quiz.Services
             var totalPoints = this.applicationDbContext.UsersAnswers
                 .Where(x => x.IdentityUserId == userId && x.Question.QuizId == quizId).Sum(x => x.Answer.Points);
             return totalPoints;
-            //var quiz = this.applicationDbContext.Quizes.Include(x=>x.Questions).ThenInclude(x=>x.Answers).FirstOrDefault(x => x.Id == quizId);
-            //var userAnswers = this.applicationDbContext.UsersAnswers.Where(x => x.IdentityUserId == userId && x.QuizId == quizId).ToList();
-            //var totalPoints = 0;
-            //foreach (var userAnswer in userAnswers)
-            //{
-            //    totalPoints += quiz.Questions.FirstOrDefault(x => x.Id == userAnswer.QuestionId).Answers.FirstOrDefault(x => x.Id == userAnswer.AnswerId).Points;
-            //}
-            //return totalPoints;
+            
         }
     }
 }

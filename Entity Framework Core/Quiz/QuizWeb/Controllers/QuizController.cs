@@ -19,13 +19,13 @@ namespace QuizWeb.Controllers
             this.quizService = quizService;
             this.userAnswerService = userAnswerService;
         }
-        public IActionResult Test(int quizId)
+        public IActionResult Test(int id)
         {
-            this.quizService.StartQuiz(this.User?.Identity?.Name, quizId);
-            var viewModel = this.quizService.GetQuizById(quizId);
+            this.quizService.StartQuiz(this.User?.Identity?.Name, id);
+            var viewModel = this.quizService.GetQuizById(id);
             return this.View(viewModel);
         }
-        public IActionResult Submit(int quizId)
+        public IActionResult Submit(int id)
         {
             foreach (var item in this.Request.Form)
             {
@@ -33,11 +33,11 @@ namespace QuizWeb.Controllers
                 var answerId = int.Parse(item.Value);
                 this.userAnswerService.AddUserAnswer(this.User.Identity.Name, questionId, answerId);
             }
-            return this.RedirectToAction("Results", new { quizId });
+            return this.RedirectToAction("Results", new { id });
         }
-        public IActionResult Results(int quizId)
+        public IActionResult Results(int id)
         {
-            var points = this.userAnswerService.UserResult(this.User.Identity.Name, quizId);
+            var points = this.userAnswerService.UserResult(this.User.Identity.Name, id);
             return this.View(points);
         }
     }

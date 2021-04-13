@@ -40,8 +40,8 @@ namespace Quiz.Services
                     {
                         Title = a.Title,
                         Id = a.Id
-                    })
-                })
+                    }).ToList()
+                }).ToList()
             };
             return quizViewModel;
         }
@@ -50,19 +50,19 @@ namespace Quiz.Services
         {
             var quizes = applicationDbContext.Quizes.Select(x => new UserQuizViewModel
             {
-                Id = x.Id,
+                QuizId = x.Id,
                 Title = x.Title,
             }).ToList();
             foreach (var quiz in quizes)
             {
-                var questionsCount = applicationDbContext.UsersAnswers.Count(UserAnswer => UserAnswer.IdentityUser.UserName == userName && UserAnswer.Question.QuizId == quiz.Id);
+                var questionsCount = applicationDbContext.UsersAnswers.Count(ua => ua.IdentityUser.UserName == userName && ua.Question.QuizId == quiz.QuizId);
                 if (questionsCount==0)
                 {
                     quiz.Status = QuizStatus.NotStarted;
                     continue;
                 }
-                var answeredQuestions = applicationDbContext.UsersAnswers.Count(UserAnswer => UserAnswer.IdentityUser.UserName == userName && UserAnswer.Question.QuizId == quiz.Id
-                && UserAnswer.AnswerId.HasValue);
+                var answeredQuestions = applicationDbContext.UsersAnswers.Count(ua => ua.IdentityUser.UserName == userName && ua.Question.QuizId == quiz.QuizId
+                && ua.AnswerId.HasValue);
                 if (answeredQuestions==questionsCount)
                 {
                     quiz.Status = QuizStatus.Finished;

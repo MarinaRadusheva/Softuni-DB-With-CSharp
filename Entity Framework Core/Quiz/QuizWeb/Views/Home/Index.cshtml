@@ -7,7 +7,7 @@
     <h1 class="display-4">Welcome</h1>
     <p>Quiz System</p>
 </div>
-<table class=" table table-sm table-striped table-hover table-bordered">
+<table class="table table-sm table-striped table-hover table-bordered">
     <tr><th>Quiz name</th><th>Action</th></tr>
     @foreach (var quiz in Model)
     {
@@ -16,15 +16,15 @@
             <td>
                 @if (quiz.Status == Quiz.Services.Models.QuizStatus.NotStarted)
                 {
-                    <a href="/Quiz/Test/@quiz.Id" class="btn btn-success">Start test</a>
+                    <a href="/Quiz/Test/@quiz.QuizId" class="btn btn-success">Start test</a>
                 }
                 else if (quiz.Status == Quiz.Services.Models.QuizStatus.InProgress)
                 {
-                    <a href="/Quiz/Test/@quiz.Id" class="btn btn-warning">Continue teest</a>
+                    <a href="/Quiz/Test/@quiz.QuizId" class="btn btn-warning">Continue test</a>
                 }
                 else
                 {
-                    <a href="/Quiz/Results/@quiz.Id" class="btn btn-warning">View results</a>
+                    <a href="/Quiz/Results/@quiz.QuizId" class="btn btn-secondary">View results</a>
                 }
             </td>
         </tr>

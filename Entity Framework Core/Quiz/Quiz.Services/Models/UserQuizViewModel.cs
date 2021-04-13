@@ -6,7 +6,7 @@ namespace Quiz.Services.Models
 {
     public class UserQuizViewModel
     {
-        public int Id { get; set; }
+        public int QuizId { get; set; }
         public string Title { get; set; }
         public QuizStatus Status { get; set; }
     }

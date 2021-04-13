@@ -9,7 +9,7 @@
     @foreach (var question in Model.QUestions)
     {
         <h5>@question.Title</h5>
-        foreach (var answer in question.Answers)
+        @foreach (var answer in question.Answers)
         {
             <div>
                 <input type="radio" name="q_@question.Id" value="@answer.Id" id="a_@answer.Id" />
