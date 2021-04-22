@@ -48,7 +48,7 @@
             var employees = context.Employees
                 .Where(x => x.EmployeesTasks.Any(t => t.Task.OpenDate >= date))
                 .ToList()
-                .OrderByDescending(x => x.EmployeesTasks.Count())
+                .OrderByDescending(x => x.EmployeesTasks.Where(d => d.Task.OpenDate >= date).Count())
                 .ThenBy(x => x.Username)
                 .Select(x => new EmployeeJsonDto
                 {
